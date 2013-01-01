@@ -1,0 +1,49 @@
+<lift:surround with="default" at="content">
+<br/>
+	<div>
+		<h2>Files for the Articles </h2>
+		<form class="lift:AddFileToArticle.tableOfArticleFiles?form=post">
+			<br/>
+			<span id="submit"></span>
+		</form>
+	</div>
+	<br/>
+	<div>
+		<h2>Upload a file in the article </h2>
+		<form class="lift:AddFileToArticle.addFile?form=post;multipart=true">
+			<span>name</span>
+			<span id="name"></span>
+			<span class="lift:Msg?id=avvisofile_name&errorClass=error"></span>
+			<br/>
+			<span>Choose the type of the file you uploading</span>
+			<span id="chooseFileTypes"></span>
+			<br />
+			<span>Priority</span>
+			<span id="priority"></span>
+			<br />
+			<span>Browse and find the file you want to upload</span>
+			<span id="upload"></span>
+			<br />
+			<input type="submit" value="Submit">
+			</input>
+			<span id="cancel"></span>
+		</form>
+	</div>
+<br/>
+	<div>
+		<h2>Choose a file for the article </h2>
+		<form class="lift:ChooseFilesForArticle?form=post">
+			<ul id="listOfFiles">
+				<li>
+					<span id="name"></span>
+					<span id="check"></span>
+
+				</li>
+			</ul>
+
+			<br/>
+			<span id="submit"></span>
+		</form>
+	</div>
+
+</lift:surround>

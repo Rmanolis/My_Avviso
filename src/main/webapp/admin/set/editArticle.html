@@ -1,0 +1,136 @@
+<lift:surround with="default" at="content">
+
+	<div class="lift:EditArticle.editArticle?form=post">
+		<b>Type the title</b>
+		<span id="title"></span>
+		<br/>
+		<b>Choose the category</b>
+		<span id="categories"></span>
+		<br/>
+		<b> Is it draft ? </b>
+		<span id="isDraft"></span>
+		<br/>
+		<b> Write here the content </b>
+		<span id="article"></span>
+		<br/>
+		<span id="addButton"></span>
+		<span id="cancelButton"></span>
+	</div>
+
+	<button id="create-new-location">
+		Create new Location
+	</button>
+	<div id="dialog-form" title="Add location">
+
+		<div id="map_canvas" style="width: 300px; height: 300px"></div>
+		<div class="lift:EditArticle.addLatLng?form=post">
+			<span id="json_script"></span>
+			<span id="explanation"></span>
+			<span id="yes"></span>
+			<span id="no"></span>
+
+		</div>
+		<span id="lat"></span>
+		<span id="lng"></span>
+	</div>
+	
+	<br/>
+
+	<b>List of Locations</b>
+
+	<div class="lift:EditArticle.showLocations">
+
+	</div>
+
+	<script  type="text/javascript">
+		var map;
+		var mapOptions;
+		var oldMarker;
+		var marker;
+		function initialize() {
+
+			mapOptions = {
+				zoom : 6,
+				center : new google.maps.LatLng(38.01861070670554, 23.625567382812505),
+				mapTypeId : google.maps.MapTypeId.ROADMAP
+			};
+
+			map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
+			google.maps.event.addListener(map, 'click', function(event) {
+				document.getElementById('lat').innerHTML = event.latLng.lat();
+				document.getElementById('lng').innerHTML = event.latLng.lng();
+				//alert(event.latLng.lat()+" "+event.latLng.lng())
+				placeMarker(event.latLng);
+			});
+
+			function placeMarker(location) {
+
+				marker = new google.maps.Marker({
+					position : location,
+					map : map
+
+				});
+
+				if (oldMarker != undefined) {
+					oldMarker.setMap(null);
+				}
+				oldMarker = marker;
+				map.setCenter(location);
+
+			}
+
+		};
+
+		$("#dialog-form").dialog({
+			autoOpen : false,
+			height : 500,
+			width : 500,
+			modal : true,
+			resizeStop : function(event, ui) {
+				google.maps.event.trigger(map, 'resize')
+			},
+			open : function(event, ui) {
+				google.maps.event.trigger(map, 'resize')
+			},
+			close : function() {
+				allFields.val("").removeClass("ui-state-error");
+			}
+		});
+		$("#create-new-location").button().click(function() {
+			document.getElementById('lat').innerHTML = "";
+			document.getElementById('lng').innerHTML = "";
+			if (oldMarker != undefined) {
+				oldMarker.setMap(null);
+			}
+			if (marker != undefined) {
+				marker.setMap(null);
+			}
+			$("#dialog-form").dialog("open");
+		});
+
+	</script>
+	<script type="text/javascript" src="/js/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript">
+tinyMCE.init({
+        // General options
+        mode : "textareas",
+        theme : "advanced",
+        plugins : "autolink,lists,spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template",
+
+        // Theme options
+        theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
+        theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,help,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+        theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+        theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,template,blockquote,pagebreak,|,insertfile,insertimage",
+        theme_advanced_toolbar_location : "top",
+        theme_advanced_toolbar_align : "left",
+        theme_advanced_statusbar_location : "bottom",
+        theme_advanced_resizing : true,
+
+        // Skin options
+        skin : "o2k7",
+        skin_variant : "silver",
+
+});
+</script>
+</lift:surround>
