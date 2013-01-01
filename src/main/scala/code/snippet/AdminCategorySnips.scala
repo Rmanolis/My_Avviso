@@ -2,15 +2,25 @@ package code.snippet
 import scala.xml._
 import net.liftweb._
 import common._
-import http.{ DispatchSnippet, S, SHtml, StatefulSnippet }
+import http._
 import http.js.JsCmd
 import http.js.JsCmds._
 import util._
 import Helpers._
 import code.model._
 import code.lib._
+import mapper._
 
-class CRUDCategories {
+class CRUDCategories extends PaginatorSnippet[Category] {
+  override def count = Category.count
+  override def itemsPerPage = 10
+  override def page = {
+    var list: List[QueryParam[Category]] = List()
+    list +:= OrderBy(Category.id, Descending)
+    list +:= StartAt(curPage * itemsPerPage)
+    list +:= MaxRows(itemsPerPage)
+    Category.findAll(list: _*)
+  }
 
   def tdForCategory(c: Category) = {
 
@@ -18,27 +28,43 @@ class CRUDCategories {
       <td> { c.getLanguageName } </td> ++
       <td> { c.parent.obj.map(_.name.is).getOrElse("-") } </td> ++
       <td> {
-        SHtml.ajaxButton(Text("Edit"), () => {
-          RedirectTo(Site.editCategoryLoc.calcHref(c))
+        SHtml.button(Text("Edit"), () => {
+          S.redirectTo(Site.editCategoryLoc.calcHref(c))
 
         })
       } </td> ++
       <td> {
-        SHtml.ajaxButton(Text("Delete"), () => {
+        SHtml.button(Text("Clean Deps"), () => {
+          c.cleanDependents
+          S.redirectTo(Site.crudCategories.fullUrl)
+
+        })
+      } </td>++
+      <td> {
+        SHtml.button(Text("Delete Deps"), () => {
+          c.deleteDependents
+          S.redirectTo(Site.crudCategories.fullUrl)
+
+        })
+      } </td>++
+      <td> {
+        SHtml.button(Text("Delete"), () => {
           c.delete
-          RedirectTo(Site.crudCategories.fullUrl)
+          S.redirectTo(Site.crudCategories.fullUrl)
 
         })
       } </td>
 
   }
-  def render(in: NodeSeq): NodeSeq = {
+  def renderPage(in: NodeSeq): NodeSeq = {
     <table id="adminListOfCategories">
       <tr>
         <th> Name </th>
         <th> Language </th>
         <th> Parent </th>
         <th> Edit </th>
+<th> Clean Dependents </th>
+<th> Delete Dependents </th>
         <th> Delete </th>
       </tr>
       {

@@ -26,10 +26,19 @@ class Language extends LongKeyedMapper[Language] with IdPK {
     }
   }
 
-  def delete = {
+  def cleanDependents{
     Category.findByLanguage(this).map {
-      c => c.delete
+      c => c.language(Empty).save
     }
+  }
+  def deleteDependents{
+    Category.findByLanguage(this).map {
+      c => c.language(Empty).save
+    }
+  }
+  def delete = {
+    cleanDependents
+    delete_!
   }
 }
 

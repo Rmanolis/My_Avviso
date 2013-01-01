@@ -41,10 +41,18 @@ class Category extends LongKeyedMapper[Category] with IdPK with Logger {
     Category.findAll(By(Category.parent, this.id.is))
   }
 
-  def delete {
+  def deleteDependents{
     Article.findByCategory(this).map {
       a => a.delete
     }
+  }
+  def cleanDependents{
+    Article.findByCategory(this).map {
+      a => a.category(this).save
+    }
+  }
+  def delete {
+    cleanDependents
     this.delete_!
   }
 }

@@ -1,6 +1,13 @@
 <lift:surround with="default" at="content">
-	<div class="lift:CRUDCategories?form=post">
-		
-	</div>
+	<div class="lift:CRUDCategories.renderPage?form=post">
 
+	</div>
+	<div class="lift:CRUDCategories.paginate">
+		<nav:first></nav:first>
+		| <nav:prev ></nav:prev >
+		| <nav:allpages></nav:allpages>
+		| <nav:next></nav:next>
+		| <nav:last></nav:last>
+		| <nav:records ></nav:records >
+	</div>
 </lift:surround>

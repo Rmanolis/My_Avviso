@@ -4,16 +4,26 @@ import code.lib.MyErrors
 import scala.xml._
 import net.liftweb._
 import common._
-import http.{ DispatchSnippet, S, SHtml, StatefulSnippet }
+import http._
 import http.js.JsCmd
 import http.js.JsCmds._
 import util._
+import mapper._
 import Helpers._
 import code.model._
 import code.lib.Site
 
-class CRUDLocalizedLabels {
-  def render = {
+class CRUDLocalizedLabels extends PaginatorSnippet[Localization] {
+  override def count = Localization.count
+  override def itemsPerPage = 10
+  override def page = {
+    var list: List[QueryParam[Localization]] = List()
+    list +:= OrderBy(Localization.label, Descending)
+    list +:= StartAt(curPage * itemsPerPage)
+    list +:= MaxRows(itemsPerPage)
+    Localization.findAll(list: _*)
+  }
+  def renderPage(in: NodeSeq): NodeSeq = {
     <table id="listOfLocalesByLabel"> {
       <tr>
         <th> Label </th>
@@ -22,22 +32,22 @@ class CRUDLocalizedLabels {
         <th> Edit </th>
         <th> Delete </th>
       </tr> ++
-        Localization.findAll.sortBy(_.label.is).map {
+        page.map {
           ll =>
             <tr> {
               <td> { ll.label.is }</td> ++
                 <td> { ll.text.is }</td> ++
                 <td> { ll.getLanguageName } </td> ++
                 <td>{
-                  SHtml.ajaxButton(Text("Edit"), () => {
-                    RedirectTo(Site.editLocalizedLabelLoc.calcHref(ll))
+                  SHtml.button(Text("Edit"), () => {
+                    S.redirectTo(Site.editLocalizedLabelLoc.calcHref(ll))
 
                   })
                 }</td> ++
                 <td> {
-                  SHtml.ajaxButton(Text("Delete"), () => {
+                  SHtml.button(Text("Delete"), () => {
                     ll.delete_!
-                    RedirectTo(Site.crudLocalizedLabels.fullUrl)
+                    S.redirectTo(Site.crudLocalizedLabels.fullUrl)
 
                   })
                 }</td>

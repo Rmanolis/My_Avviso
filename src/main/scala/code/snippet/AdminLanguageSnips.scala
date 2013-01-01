@@ -1,15 +1,15 @@
 package code.snippet
 import net.liftweb._
 import common._
-import http.{ DispatchSnippet, S, SHtml, StatefulSnippet }
+import http._
 import http.js.JsCmd
 import http.js.JsCmds._
 import util._
 import Helpers._
 import scala.xml._
-
 import code.lib._
 import code.model._
+import mapper._
 
 class AddLanguage extends StatefulSnippet {
   def dispatch = { case _ => render }
@@ -79,8 +79,17 @@ class EditLanguage extends StatefulSnippet {
 
 }
 
-object CRUDLanguages {
-  def render(in: NodeSeq): NodeSeq = {
+object CRUDLanguages extends PaginatorSnippet[Language] {
+  override def count = Language.count
+  override def itemsPerPage = 10
+  override def page = {
+    var list: List[QueryParam[Language]] = List()
+    list +:= OrderBy(Language.id, Descending)
+    list +:= StartAt(curPage * itemsPerPage)
+    list +:= MaxRows(itemsPerPage)
+    Language.findAll(list: _*)
+  }
+  def renderPage(in: NodeSeq): NodeSeq = {
     import SHtml._
 
     <table id="listLanguages"> {
@@ -89,20 +98,34 @@ object CRUDLanguages {
         <th> Edit </th>
         <th> Delete </th>
       </tr> ++
-        Language.findAll.map {
+        page.map {
           language =>
             <tr> {
               <td> { language.name.is } </td> ++
                 <td> {
-                  ajaxButton(Text("Edit"), () => {
-                    RedirectTo(Site.editLanguageLoc.calcHref(language))
+                  button(Text("Edit"), () => {
+                    S.redirectTo(Site.editLanguageLoc.calcHref(language))
 
                   })
                 }</td> ++
                 <td> {
-                  ajaxButton(Text("Delete"), () => {
+                  button(Text("Clean deps"), () => {
+                    language.cleanDependents
+                    S.redirectTo(Site.crudLanguages.fullUrl)
+
+                  })
+                }</td> ++
+                <td> {
+                  button(Text("Delete deps"), () => {
+                    language.deleteDependents
+                    S.redirectTo(Site.crudLanguages.fullUrl)
+
+                  })
+                }</td> ++
+                <td> {
+                  button(Text("Delete"), () => {
                     language.delete
-                    RedirectTo(Site.crudLanguages.fullUrl)
+                    S.redirectTo(Site.crudLanguages.fullUrl)
                   })
                 }</td>
             }</tr>
